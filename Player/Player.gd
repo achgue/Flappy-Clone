@@ -3,13 +3,16 @@ extends KinematicBody2D
 
 const UP = Vector2(0,-1)
 const FLAP = 200
-const MAXFALLSPEED = 250
+const MAXFALLSPEED = 200
 const GRAVITY = 10
+
+var glideSpeed = 50
+var JUMPNUM = 3
 
 var Wall = preload("res://Walls/WallNode.tscn")
 
-var glideSpeed = 50
-var glideStamina = 50
+
+var glideStamina = 30
 var motion = Vector2()
 var score = 0
 
@@ -25,20 +28,28 @@ func _physics_process(delta):
 		motion.y = MAXFALLSPEED
 	
 	if Input.is_action_just_pressed("FLAP"):
-		motion.y = -FLAP
-		if glideStamina < 50:
+		if JUMPNUM > 0:
+			motion.y = -FLAP
+			JUMPNUM -= 1
+			$JumpSound.play()
+		if glideStamina < 30:
 			glideStamina += 5
-			if glideStamina > 50:
-				glideStamina = 50
-		print(position)
+			if glideStamina > 30:
+				glideStamina = 30
+		
 	
 	if Input.is_action_pressed("GLIDE"):
 		if glideStamina > 0:
 			motion.y = glideSpeed
+			JUMPNUM += 1
+			if JUMPNUM > 3:
+				JUMPNUM = 3
 			glideStamina -=1
 		
 	motion = move_and_slide(motion, UP)
-	get_parent().get_parent().get_node("CanvasLayer/RichTextLabel").text = str(glideStamina)
+	get_parent().get_parent().get_node("CanvasLayer/RichTextLabel").text = str(score)
+	get_parent().get_parent().get_node("CanvasLayer/Stamina").value = glideStamina
+	get_parent().get_parent().get_node("CanvasLayer/Jumps").value = JUMPNUM
 
 
 func _on_Detect_area_entered(area):
@@ -57,9 +68,7 @@ func Wall_reset(wallPos):
 	get_parent().call_deferred("add_child", Wall_instance)
 
 func _on_Generator_body_entered(body):
-	print(body.position.x)
 	if body.name == "Walls":
-		print(body.position.x)
 		var newWallPosition = body.position.x - body.position.x + 400
 		Wall_reset(newWallPosition)
 
