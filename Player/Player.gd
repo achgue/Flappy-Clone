@@ -9,6 +9,7 @@ const GRAVITY = 10
 var Wall = preload("res://Walls/WallNode.tscn")
 
 var glideSpeed = 50
+var glideStamina = 50
 var motion = Vector2()
 var score = 0
 
@@ -25,13 +26,19 @@ func _physics_process(delta):
 	
 	if Input.is_action_just_pressed("FLAP"):
 		motion.y = -FLAP
+		if glideStamina < 50:
+			glideStamina += 5
+			if glideStamina > 50:
+				glideStamina = 50
 		print(position)
 	
 	if Input.is_action_pressed("GLIDE"):
-		motion.y = glideSpeed
+		if glideStamina > 0:
+			motion.y = glideSpeed
+			glideStamina -=1
 		
 	motion = move_and_slide(motion, UP)
-	get_parent().get_parent().get_node("CanvasLayer/RichTextLabel").text = str(score)
+	get_parent().get_parent().get_node("CanvasLayer/RichTextLabel").text = str(glideStamina)
 
 
 func _on_Detect_area_entered(area):
