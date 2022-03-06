@@ -1,0 +1,97 @@
+[gd_scene load_steps=11 format=2]
+
+[ext_resource path="res://Walls/WallNode.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Player/Player.gd" type="Script" id=2]
+[ext_resource path="res://Player/Player.png" type="Texture" id=3]
+[ext_resource path="res://Walls/Wall.png" type="Texture" id=4]
+[ext_resource path="res://Player/light.png" type="Texture" id=5]
+[ext_resource path="res://World/Generation/Destroier.gd" type="Script" id=6]
+[ext_resource path="res://World/Generation/Generator.gd" type="Script" id=7]
+
+[sub_resource type="RectangleShape2D" id=3]
+extents = Vector2( 12.5, 145 )
+
+[sub_resource type="RectangleShape2D" id=1]
+extents = Vector2( 8, 8 )
+
+[sub_resource type="RectangleShape2D" id=2]
+extents = Vector2( 8.5, 8.5 )
+
+[node name="World" type="Node2D"]
+
+[node name="Destroier" type="StaticBody2D" parent="."]
+position = Vector2( -312, 0 )
+script = ExtResource( 6 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Destroier"]
+shape = SubResource( 3 )
+
+[node name="Generator" type="StaticBody2D" parent="."]
+position = Vector2( 256, 0 )
+script = ExtResource( 7 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Generator"]
+visible = false
+shape = SubResource( 3 )
+
+[node name="PlayerNode" type="Node2D" parent="."]
+
+[node name="Player" type="KinematicBody2D" parent="PlayerNode"]
+script = ExtResource( 2 )
+
+[node name="Destroier" type="Area2D" parent="PlayerNode/Player"]
+position = Vector2( -312, 0 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PlayerNode/Player/Destroier"]
+shape = SubResource( 3 )
+
+[node name="Generator" type="Area2D" parent="PlayerNode/Player"]
+position = Vector2( 256, 0 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PlayerNode/Player/Generator"]
+shape = SubResource( 3 )
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PlayerNode/Player"]
+shape = SubResource( 1 )
+
+[node name="Sprite" type="Sprite" parent="PlayerNode/Player"]
+texture = ExtResource( 3 )
+
+[node name="Detect" type="Area2D" parent="PlayerNode/Player"]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="PlayerNode/Player/Detect"]
+shape = SubResource( 2 )
+
+[node name="Light2D" type="Light2D" parent="PlayerNode/Player"]
+texture = ExtResource( 5 )
+shadow_enabled = true
+
+[node name="Camera2D" type="Camera2D" parent="."]
+current = true
+zoom = Vector2( 0.5, 0.5 )
+
+[node name="WallNode" parent="." instance=ExtResource( 1 )]
+position = Vector2( 304, 0 )
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+follow_viewport_enable = true
+
+[node name="RichTextLabel" type="RichTextLabel" parent="CanvasLayer"]
+margin_left = -24.0
+margin_top = -136.0
+margin_right = 16.0
+margin_bottom = -96.0
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Background" type="Sprite" parent="."]
+modulate = Color( 0.0745098, 0.141176, 0.254902, 1 )
+scale = Vector2( 200, 200 )
+z_index = -5
+texture = ExtResource( 4 )
+
+[connection signal="body_entered" from="PlayerNode/Player/Destroier" to="PlayerNode/Player" method="_on_Destroier_body_entered"]
+[connection signal="body_entered" from="PlayerNode/Player/Generator" to="PlayerNode/Player" method="_on_Generator_body_entered"]
+[connection signal="area_entered" from="PlayerNode/Player/Detect" to="PlayerNode/Player" method="_on_Detect_area_entered"]
+[connection signal="body_entered" from="PlayerNode/Player/Detect" to="PlayerNode/Player" method="_on_Detect_body_entered"]
